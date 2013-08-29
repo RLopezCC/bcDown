@@ -36,9 +36,9 @@ class record:
                     if "mp3-128" in line:
                         link = line.split("\"")[3]
                         self.songlinks.append(link)
-
-                        name = line.split("title")[1]
-                        name = name.split("\"")[2]
+                    if "\"title\":" in line:                   
+                        name = line.split("title\":\"")[1]
+                        name = name.split("\"")[0]
                         self.songnames.append(name)
             self.songsnum = songs_sum
         f.close()
