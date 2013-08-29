@@ -1,4 +1,5 @@
 import urllib
+import re
 
 
 class record:
@@ -11,36 +12,19 @@ class record:
     songlinks = []
 
     def getRecordInfo(self):
-        songs_sum = 0
-        trackinfofound = False
         f = get_url_file(self.bandcampLink)
         for line in f.readlines():
-            if "<title>" in line:
-                bandname = line.split("|")[1]
-                bandname = bandname.split("<")[0]
-                self.bandname = bandname
-
-                recordname = line.split("|")[0]
-                recordname = recordname.split(">")[1]
-                self.recordname = recordname
+            if "artist : " in line:
+                self.bandname = re.search("\"(.+)\"", line).group(1)
+            if "album_title : " in line:
+                self.recordname = re.search("\"(.+)\"", line).group(1)
             if "artFullsizeUrl" in line:
-                self.artwork = line.split("\"")[1]
-
-            if "info_link" in line:
-                songs_sum += 1
-            if "trackinfo" in line and trackinfofound is False:
-                trackinfo = line
-                trackinfofound = True
-                trackinfo = trackinfo.split("{")
-                for line in trackinfo:
-                    if "mp3-128" in line:
-                        link = line.split("\"")[3]
-                        self.songlinks.append(link)
-                    if "\"title\":" in line:                   
-                        name = line.split("title\":\"")[1]
-                        name = name.split("\"")[0]
-                        self.songnames.append(name)
-            self.songsnum = songs_sum
+               self.artwork = re.search("(http://.+?.jpg)", line).group(1)
+            if "trackinfo :" in line:
+                self.trackinfo = line
+        self.songlinks = re.findall("mp3-128\":\"(.+?\.0)", self.trackinfo)
+        self.songnames = re.findall("\"title\":\"(.+?)\"", self.trackinfo)
+        self.songsnum = len(self.songlinks)
         f.close()
 
     def __init__(self, bcurl):
