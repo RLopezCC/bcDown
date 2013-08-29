@@ -12,6 +12,8 @@ class record:
     songlinks = []
 
     def getRecordInfo(self):
+        """Iterates the html document and gets the album data."""
+        
         f = get_url_file(self.bandcampLink)
         for line in f.readlines():
             if "artist : " in line:
@@ -28,10 +30,17 @@ class record:
         f.close()
 
     def __init__(self, bcurl):
-        self.bandcampLink = bcurl
-        self.getRecordInfo()
-
-
+        """record constructor, takes the url, assigns it to bandcampLink
+        and calls getRecordInfo()
+        """
+        linkmatch = re.match("http://.+?.bandcamp.com/album/.+", bcurl)
+        if linkmatch is not None:
+            self.bandcampLink = bcurl
+            self.getRecordInfo()
+        else:
+            return None
+            
+            
 def get_url_file(url):
     f = urllib.urlopen(url)
     return f
